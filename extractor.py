@@ -1,6 +1,7 @@
 from tkinter import *
 from tkinter import filedialog
 import os
+import datetime
 
 def genAutoexec():
     defaultSavePath = r"C:\Program Files (x86)\Steam\steamapps\common\Counter-Strike Global Offensive\csgo\cfg"
@@ -19,8 +20,16 @@ def genAutoexec():
     file = open(savePath,'w')
     if keepBackup.get():
         for line in existingLines:
-            file.write(r"// " + line)
-    file.write('\n')
+            # this could eliminate aliases
+            #file.write(r"// " + line)
+
+            # dont keep the old host_writeconfig
+            if 'host_writeconfig' in line:
+                file.write(r'//'+line+'  //commented old host_writeconfig out')
+            else:
+                file.write(line)
+
+    file.write('\n\n//new additions here as of {}\n'.format(datetime.datetime.now()))
 
     # add quickswap if requested
     if quickswap.get():
@@ -90,11 +99,12 @@ else:
 
 quickswap = IntVar()
 quickswapCheck = Checkbutton(root, text = "Add quickswap alias with keybind q", variable=quickswap)
+quickswapCheck.select()
 quickswapCheck.pack()
 
 #keep backup of existing autoexec, defaults to true
 keepBackup = IntVar()
-keepBackupCheck = Checkbutton(root, text = "Keep a backup of existing autoexec.cfg", variable=keepBackup)
+keepBackupCheck = Checkbutton(root, text = "Keep a backup of existing autoexec.cfg (reccomended to prevent overwriting aliases)", variable=keepBackup)
 keepBackupCheck.select()
 keepBackupCheck.pack()
 
@@ -103,5 +113,5 @@ genFileButton = Button(root, text="Generate autoexec.cfg file",command=lambda: g
 genFileButton.pack()
 
 #set window size
-root.geometry("400x400+120+120")
+root.geometry("800x400+120+120")
 root.mainloop()
